@@ -35,7 +35,7 @@ Source:		%{name}-@RPM_VERSION@.tar.gz
 
 BuildRequires:	unzip
 
-Requires:	%{name}-setup >= %{version}
+Requires:	%{name}-setup
 Requires:	mod_auth_openidc
 Requires:	ovirt-engine-extension-aaa-misc
 
