@@ -34,6 +34,9 @@ DEK = oengcommcons.DBEnvKeysConst
 @util.export
 @util.codegen
 class Const(object):
+    OVIRT_ENGINE_KEYCLOAK_PACKAGE_NAME = 'ovirt-engine-keycloak'
+    OVIRT_ENGINE_KEYCLOAK_SETUP_PACKAGE_NAME = \
+        'ovirt-engine-keycloak-setup'
     KEYCLOAK_MASTER_REALM = 'master'
     KEYCLOAK_INTERNAL_REALM = 'ovirt-internal'
     OVIRT_ADMIN_USER = 'admin@ovirt'

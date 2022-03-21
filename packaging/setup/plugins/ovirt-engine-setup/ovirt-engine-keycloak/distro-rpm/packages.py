@@ -48,46 +48,51 @@ class Plugin(plugin.PluginBase):
         )
     )
     def _customization(self):
-        def tolist(s):
-            return [e.strip() for e in s.split(',')]
+        setup_packages = okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SETUP_PACKAGE_NAME
 
+        # Add our setup package to the list of setup packages.
+        # This is used to make sure all setup packages are fully up-to-date
+        # before running engine-setup.
         self.environment[
             osetupcons.RPMDistroEnv.PACKAGES_SETUP
-        ].extend(
-            tolist(self.environment[okkcons.RPMDistroEnv.PACKAGES_SETUP])
+        ].append(
+            setup_packages
         )
 
         if self.environment[oenginecons.CoreEnv.ENABLE]:
-            packages = tolist(
-                self.environment[
-                    okkcons.RPMDistroEnv.PACKAGES
-                ]
-            )
+            # TODO: Replace condition above with a keycloak-specific one
+            package = okkcons.Const.OVIRT_ENGINE_KEYCLOAK_PACKAGE_NAME
+
+            # Add ourselves to the list of packages to be upgraded by
+            # engine-setup.
             self.environment[
                 osetupcons.RPMDistroEnv.PACKAGES_UPGRADE_LIST
             ].append(
                 {
-                    'packages': packages,
+                    'packages': [packages],
                 },
             )
+
+            # Add ourselves to the list of packages to be versionlocked
+            # after the upgrade, to prevent users from manually upgrading them,
+            # thus risking incompatibility between older engine and newer
+            # keycloak.
             self.environment[
                 osetupcons.RPMDistroEnv.VERSION_LOCK_APPLY
-            ].extend(packages)
+            ].append(package)
 
+            # Add both packages to the list of packages to be filtered out of
+            # versionlock right before upgrading.
+            # Adding the setup package is not really needed. This file was
+            # copied from dwh, see also the discussion/refinement in:
+            # https://gerrit.ovirt.org/c/ovirt-dwh/+/79705/
+            # But is harmless.
             self.environment[
                 osetupcons.RPMDistroEnv.VERSION_LOCK_FILTER
-            ].extend(
-                tolist(
-                    self.environment[okkcons.RPMDistroEnv.PACKAGES]
-                )
-            )
-            self.environment[
-                osetupcons.RPMDistroEnv.VERSION_LOCK_FILTER
-            ].extend(
-                tolist(
-                    self.environment[okkcons.RPMDistroEnv.PACKAGES_SETUP]
-                )
-            )
+            ].extend([
+                package,
+                setup_packages,
+            ])
 
 
 # vim: expandtab tabstop=4 shiftwidth=4
